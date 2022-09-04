@@ -23,7 +23,7 @@ def main():
 
     loader = scene.create_urdf_loader()
     loader.fix_root_link = True
-    urdf_path = '../assets/179/mobility.urdf'
+    urdf_path = '../../box/3f8719c9-0e3e-11ed-ac75-ec2e98c7e246/motion_unity.urdf'
     # load as a kinematic articulation
     asset = loader.load_kinematic(urdf_path)
     assert asset, 'URDF not loaded.'
@@ -47,7 +47,7 @@ def main():
         pose=sapien.Pose(),  # relative to the mounted actor
         width=width,
         height=height,
-        fovy=np.deg2rad(35),
+        fovy=np.deg2rad(55),
         near=near,
         far=far,
     )
@@ -55,7 +55,7 @@ def main():
     print('Intrinsic matrix\n', camera.get_camera_matrix())
 
     # Compute the camera pose by specifying forward(x), left(y) and up(z)
-    cam_pos = np.array([-2, -2, 3])
+    cam_pos = np.array([-.2, -.2, .3])
     forward = -cam_pos / np.linalg.norm(cam_pos)
     left = np.cross([0, 0, 1], forward)
     left = left / np.linalg.norm(left)
@@ -97,7 +97,7 @@ def main():
     # points_camera = points_opengl[..., [2, 0, 1]] * [-1, -1, 1]
 
     pcd = o3d.geometry.PointCloud()
-    pcd.points = o3d.utility.Vector3dVector(points_world)
+    pcd.points = o3d.utility.Vector3dVector(points_world * 100)
     pcd.colors = o3d.utility.Vector3dVector(points_color)
     coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame()
     o3d.visualization.draw_geometries([pcd, coord_frame])
@@ -126,32 +126,6 @@ def main():
     label0_pil.save('label0.png')
     label1_pil = Image.fromarray(color_palette[label1_image])
     label1_pil.save('label1.png')
-
-    # ---------------------------------------------------------------------------- #
-    # Take picture from the viewer
-    # ---------------------------------------------------------------------------- #
-    viewer = Viewer(renderer)
-    viewer.set_scene(scene)
-    # We show how to set the viewer according to the pose of a camera
-    # opengl camera -> sapien world
-    model_matrix = camera.get_model_matrix()
-    # sapien camera -> sapien world
-    # You can also infer it from the camera pose
-    model_matrix = model_matrix[:, [2, 0, 1, 3]] * np.array([-1, -1, 1, 1])
-    # The rotation of the viewer camera is represented as [roll(x), pitch(-y), yaw(-z)]
-    rpy = mat2euler(model_matrix[:3, :3]) * np.array([1, -1, -1])
-    viewer.set_camera_xyz(*model_matrix[0:3, 3])
-    viewer.set_camera_rpy(*rpy)
-    viewer.window.set_camera_parameters(near=0.05, far=100, fovy=1)
-    while not viewer.closed:
-        if viewer.window.key_down('p'):  # Press 'p' to take the screenshot
-            rgba = viewer.window.get_float_texture('Color')
-            rgba_img = (rgba * 255).clip(0, 255).astype("uint8")
-            rgba_pil = Image.fromarray(rgba_img)
-            rgba_pil.save('screenshot.png')
-        scene.step()
-        scene.update_render()
-        viewer.render()
 
 
 if __name__ == '__main__':
