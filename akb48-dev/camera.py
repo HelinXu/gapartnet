@@ -11,9 +11,9 @@ from PIL import Image, ImageColor
 import open3d as o3d
 from sapien.utils.viewer import Viewer
 from transforms3d.euler import mat2euler
+from glob import glob
 
-
-def main():
+def main(id):
     engine = sapien.Engine()
     renderer = sapien.VulkanRenderer()
     engine.set_renderer(renderer)
@@ -23,7 +23,7 @@ def main():
 
     loader = scene.create_urdf_loader()
     loader.fix_root_link = True
-    urdf_path = '../../box/3f8719c9-0e3e-11ed-ac75-ec2e98c7e246/motion_unity.urdf'
+    urdf_path = f'data/{id}/motion_unity.urdf'
     # load as a kinematic articulation
     asset = loader.load_kinematic(urdf_path)
     assert asset, 'URDF not loaded.'
@@ -77,7 +77,7 @@ def main():
     # rgba = camera.get_color_rgba()  # [H, W, 4]
     rgba_img = (rgba * 255).clip(0, 255).astype("uint8")
     rgba_pil = Image.fromarray(rgba_img)
-    rgba_pil.save('color.png')
+    rgba_pil.save(f'data/color-{id}.png')
 
     # ---------------------------------------------------------------------------- #
     # XYZ position in the camera space
@@ -93,20 +93,11 @@ def main():
     model_matrix = camera.get_model_matrix()
     points_world = points_opengl @ model_matrix[:3, :3].T + model_matrix[:3, 3]
 
-    # SAPIEN CAMERA: z up and x forward
-    # points_camera = points_opengl[..., [2, 0, 1]] * [-1, -1, 1]
-
-    pcd = o3d.geometry.PointCloud()
-    pcd.points = o3d.utility.Vector3dVector(points_world * 100)
-    pcd.colors = o3d.utility.Vector3dVector(points_color)
-    coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame()
-    o3d.visualization.draw_geometries([pcd, coord_frame])
-
     # Depth
     depth = -position[..., 2]
     depth_image = (depth * 1000.0).astype(np.uint16)
     depth_pil = Image.fromarray(depth_image)
-    depth_pil.save('depth.png')
+    depth_pil.save(f'data/depth-{id}.png')
 
     # ---------------------------------------------------------------------------- #
     # Segmentation labels
@@ -123,10 +114,13 @@ def main():
     # label0_image = camera.get_visual_segmentation()
     # label1_image = camera.get_actor_segmentation()
     label0_pil = Image.fromarray(color_palette[label0_image])
-    label0_pil.save('label0.png')
+    label0_pil.save(f'data/label0-{id}.png')
     label1_pil = Image.fromarray(color_palette[label1_image])
-    label1_pil.save('label1.png')
+    label1_pil.save(f'data/label1-{id}.png')
+
 
 
 if __name__ == '__main__':
-    main()
+    for urdf in glob('data/*/motion_unity.urdf'):
+        id = urdf.split('/')[-2]
+        main(id)
