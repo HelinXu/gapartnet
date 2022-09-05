@@ -1,13 +1,13 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:40:19
-LastEditTime: 2022-09-05 17:04:29
+LastEditTime: 2022-09-05 17:07:26
 Description: 
 '''
 import logging
 logging.basicConfig(
                 level=logging.DEBUG,
-                filename='process_pose.log',
+                filename='log/process_pose.log',
                 filemode='w',
                 format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 from categorize import CAT
@@ -42,12 +42,15 @@ def box1(idx):
     asset.set_root_pose(sapien.Pose(CAT['box'][1]['root_p'],
                                     CAT['box'][1]['root_q']))
     # ic(asset.get_joints())
-    joints = asset.get_joints()
-    for i, joint in enumerate(joints):
-        if joint.type == 'revolute':
-            # ic(joint.get_limits().max())
-            # ic(asset.get_qpos())
-            asset.set_qpos([joint.get_limits().max()])
+    if asset.get_qpos().shape[0] != 1:
+        logging.error(f'box1 {idx} qpos shape error: {asset.get_qpos()}')
+    else:
+        joints = asset.get_joints()
+        for i, joint in enumerate(joints):
+            if joint.type == 'revolute':
+                # ic(joint.get_limits().max())
+                # ic(asset.get_qpos())
+                asset.set_qpos([joint.get_limits().max()])
 
     scene.set_ambient_light([0.5, 0.5, 0.5])
     scene.add_directional_light([0, 1, -1], [0.5, 0.5, 0.5], shadow=True)
