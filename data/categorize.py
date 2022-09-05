@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:15:48
-LastEditTime: 2022-09-05 15:38:49
+LastEditTime: 2022-09-05 16:13:32
 Description: 
 '''
 
@@ -67,7 +67,11 @@ BOX_1 = [
 
 CAT = {
     'box': {
-        1: BOX_1,
+        1: {
+            'ids': BOX_1,
+            'root_p': [0, 0, 0],
+            'root_q': [0, 0, 0, 1],
+        },
     },
     'bucket': {
 
