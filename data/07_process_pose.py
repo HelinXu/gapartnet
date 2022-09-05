@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:40:19
-LastEditTime: 2022-09-05 17:07:26
+LastEditTime: 2022-09-05 17:52:58
 Description: 
 '''
 import logging
@@ -19,6 +19,8 @@ from sapien.utils.viewer import Viewer
 from transforms3d.euler import mat2euler
 from glob import glob
 import random
+import json
+import os
 from icecream import ic, install
 install()
 ic.configureOutput(includeContext=True, contextAbsPath=True)
@@ -117,6 +119,63 @@ def box1(idx):
             rgba_img = (rgba * 255).clip(0, 255).astype("uint8")
             rgba_pil = Image.fromarray(rgba_img)
             rgba_pil.save(f'./log/{idx}.png')
+        elif viewer.window.key_down('r'):
+            # reset from json file
+            if os.path.isfile(f'processed/box/{idx}/init_pose.json'):
+                with open(f'processed/box/{idx}/init_pose.json', 'r') as f:
+                    data = json.load(f)
+                print('reset pose from json file')
+                asset.set_qpos(data['qpos'])
+                asset.set_root_pose(sapien.Pose(data['root_p'], data['root_q']))
+        elif viewer.window.key_down('up'):
+            asset.set_qpos([asset.get_qpos()[0] + 0.01])
+        elif viewer.window.key_down('down'):
+            asset.set_qpos([asset.get_qpos()[0] - 0.01])
+        elif viewer.window.key_down('l'):
+            root_pose = asset.get_root_pose()
+            root_pose.set_q(root_pose.q + np.array([0, 0, 0.01, 0]))
+            asset.set_root_pose(root_pose)
+        elif viewer.window.shift and viewer.window.key_down('l'):
+            root_pose = asset.get_root_pose()
+            root_pose.set_q(root_pose.q + np.array([0, 0, -0.01, 0]))
+            asset.set_root_pose(root_pose)
+        elif viewer.window.key_down('j'):
+            root_pose = asset.get_root_pose()
+            root_pose.set_q(root_pose.q + np.array([0, 0.01, 0, 0]))
+            asset.set_root_pose(root_pose)
+        elif viewer.window.shift and viewer.window.key_down('j'):
+            root_pose = asset.get_root_pose()
+            root_pose.set_q(root_pose.q + np.array([0, -0.01, 0, 0]))
+            asset.set_root_pose(root_pose)
+        elif viewer.window.key_down('k'):
+            root_pose = asset.get_root_pose()
+            root_pose.set_q(root_pose.q + np.array([0.01, 0, 0, 0]))
+            asset.set_root_pose(root_pose)
+        elif viewer.window.shift and viewer.window.key_down('k'):
+            root_pose = asset.get_root_pose()
+            root_pose.set_q(root_pose.q + np.array([-0.01, 0, 0, 0]))
+            asset.set_root_pose(root_pose)
+        elif viewer.window.key_down('i'):
+            root_pose = asset.get_root_pose()
+            root_pose.set_q(root_pose.q + np.array([0, 0, 0, 0.01]))
+            asset.set_root_pose(root_pose)
+        elif viewer.window.shift and viewer.window.key_down('i'):
+            root_pose = asset.get_root_pose()
+            root_pose.set_q(root_pose.q + np.array([0, 0, 0, -0.01]))
+            asset.set_root_pose(root_pose)
+        elif viewer.window.key_down('enter'):
+            # write the pose to json file
+            with open(f'processed/box/{idx}/init_pose.json', 'w') as f:
+                pose_dict = {
+                    'root_p': asset.get_root_pose().p.tolist(),
+                    'root_q': asset.get_root_pose().q.tolist(),
+                    'qpos': asset.get_qpos().tolist()
+                }
+                json.dump(pose_dict, f)
+            viewer.close()
+        elif viewer.window.key_down('escape'):
+            logging.error(f'box1 {idx} did not save the pose')
+            viewer.close()
         scene.step()
         scene.update_render()
         viewer.render()
