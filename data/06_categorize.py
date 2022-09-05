@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:15:48
-LastEditTime: 2022-09-05 15:35:56
+LastEditTime: 2022-09-05 15:38:49
 Description: 
 '''
 
@@ -63,3 +63,19 @@ BOX_1 = [
     210,
     212,
 ]
+
+
+CAT = {
+    'box': {
+        1: BOX_1,
+    },
+    'bucket': {
+
+    },
+    'drawer': {
+
+    },
+    'trashcan': {
+        
+    }
+}
