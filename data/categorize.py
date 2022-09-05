@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:15:48
-LastEditTime: 2022-09-05 16:13:32
+LastEditTime: 2022-09-05 17:12:06
 Description: 
 '''
 
@@ -11,7 +11,6 @@ BOX_1 = [
     45,
     52,
     55,
-    56,
     58,
     60,
     63,
