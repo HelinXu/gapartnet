@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:40:19
-LastEditTime: 2022-09-05 18:52:21
+LastEditTime: 2022-09-05 20:16:29
 Description: 
 '''
 import logging
@@ -21,7 +21,7 @@ from glob import glob
 import random
 import json
 import os
-from utils.d3_util import actor_to_open3d_mesh
+from utils.d3_util import actor_to_open3d_mesh, add_line_set_to_renderer
 from icecream import ic, install
 install()
 ic.configureOutput(includeContext=True, contextAbsPath=True)
@@ -44,11 +44,11 @@ def box1(idx):
                 bbox2.color = (0, 1, 0)
                 mesh.paint_uniform_color([0.8, 0.8, 0.8])
                 mesh.compute_vertex_normals()
-                ic(np.asarray(bbox.get_box_points()))
+                bbox_lineset = o3d.geometry.LineSet.create_from_axis_aligned_bounding_box(bbox)
                 # display the mesh
                 o3d.visualization.draw_geometries([mesh, bbox, bbox2])
-                # return the bbox vertices
-                return bbox.get_box_points()
+                # return the bbox vertices and connections
+                return np.asarray(bbox_lineset.points), np.asarray(bbox_lineset.lines)
 
 
     urdf_path = f'processed/box/{idx}/motion_sapien.urdf'
@@ -113,7 +113,9 @@ def box1(idx):
     scene.update_render()
     camera.take_picture()
 
-    
+    bbox_points, bbox_lines = view_hinge_lid_bbox(asset)
+    add_line_set_to_renderer(scene=scene, renderer=renderer, position=bbox_points, connection=bbox_lines)
+
     viewer = Viewer(renderer)
     viewer.set_scene(scene)
     # We show how to set the viewer according to the pose of a camera
@@ -177,7 +179,8 @@ def box1(idx):
             root_pose.set_q(root_pose.q + np.array([0, 0, 0, -0.01]))
             asset.set_root_pose(root_pose)
         elif viewer.window.key_down('v'):  # view the part pose
-            view_hinge_lid_bbox(asset)
+            bbox_points, bbox_lines = view_hinge_lid_bbox(asset)
+            add_line_set_to_renderer(scene=scene, renderer=renderer, position=bbox_points, connection=bbox_lines)
         elif viewer.window.key_down('enter'):
             # write the pose to json file
             with open(f'processed/box/{idx}/init_pose.json', 'w') as f:

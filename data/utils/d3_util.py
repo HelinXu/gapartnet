@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 18:14:53
-LastEditTime: 2022-09-05 18:29:58
+LastEditTime: 2022-09-05 19:57:38
 Description: 
 '''
 import os
@@ -111,3 +111,23 @@ def actor_to_open3d_mesh(actor: sapien.ActorBase, use_collision_mesh=False, use_
         mesh = None
 
     return mesh
+
+
+def add_line_set_to_renderer(scene: sapien.Scene, renderer: sapien.VulkanRenderer, position: np.ndarray,
+                             connection: np.ndarray, color: np.ndarray = np.ones(4), parent: Optional[R.Node] = None):
+    num_point = position.shape[0]
+    if connection.shape[1] != 2:
+        raise ValueError(f"Connection should be a mx2 array, but now get {connection.shape}")
+    if position.shape[1] != 3:
+        raise ValueError(f"Connection should be a nx3 array, but now get {position.shape}")
+    if np.max(connection) > num_point:
+        raise IndexError(f"Index in connection exceed the number of position")
+    context: R.Context = renderer._internal_context
+    render_scene: R.Scene = scene.get_renderer_scene()._internal_scene
+    edge = position[connection.reshape([-1])]
+    line_set = context.create_line_set(edge, np.tile(color, connection.size))
+    if parent is not None:
+        obj = render_scene.add_line_set(line_set, parent)
+    else:
+        obj = render_scene.add_line_set(line_set)
+    return obj
