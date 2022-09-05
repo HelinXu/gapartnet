@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:40:19
-LastEditTime: 2022-09-05 18:09:05
+LastEditTime: 2022-09-05 18:34:16
 Description: 
 '''
 import logging
@@ -21,12 +21,32 @@ from glob import glob
 import random
 import json
 import os
+from utils.d3_util import actor_to_open3d_mesh
 from icecream import ic, install
 install()
 ic.configureOutput(includeContext=True, contextAbsPath=True)
 
 # box 1
 def box1(idx):
+    def hinge_lid_bbox(asset: sapien.KinematicArticulation):
+        for link in asset.get_links():
+            linkname = link.get_name()
+            ic(linkname)
+            if linkname != 'base_link':
+                if not linkname == 'link1':
+                    logging.error(f'link name error: {linkname}, from {idx}')
+                mesh :o3d.geometry.TriangleMesh = actor_to_open3d_mesh(link)
+                # get the bounding box of the mesh
+                bbox = mesh.get_axis_aligned_bounding_box()
+                bbox2 = mesh.get_oriented_bounding_box()
+                # color the bbox red
+                bbox.color = (1, 0, 0)
+                bbox2.color = (0, 1, 0)
+                # display the mesh
+                o3d.visualization.draw_geometries([mesh, bbox, bbox2])
+
+
+
     urdf_path = f'processed/box/{idx}/motion_sapien.urdf'
     engine = sapien.Engine()
     renderer = sapien.VulkanRenderer()
@@ -53,6 +73,8 @@ def box1(idx):
                 # ic(joint.get_limits().max())
                 # ic(asset.get_qpos())
                 asset.set_qpos([joint.get_limits().max()])
+
+
 
     scene.set_ambient_light([0.5, 0.5, 0.5])
     scene.add_directional_light([0, 1, -1], [0.5, 0.5, 0.5], shadow=True)
@@ -89,6 +111,8 @@ def box1(idx):
     scene.update_render()
     camera.take_picture()
 
+    hinge_lid_bbox(asset)
+    
     viewer = Viewer(renderer)
     viewer.set_scene(scene)
     # We show how to set the viewer according to the pose of a camera
