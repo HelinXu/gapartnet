@@ -1,14 +1,14 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:40:19
-LastEditTime: 2022-09-05 17:52:58
+LastEditTime: 2022-09-05 18:09:05
 Description: 
 '''
 import logging
 logging.basicConfig(
                 level=logging.DEBUG,
                 filename='log/process_pose.log',
-                filemode='w',
+                filemode='a',
                 format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 from categorize import CAT
 import sapien.core as sapien
@@ -60,9 +60,6 @@ def box1(idx):
     scene.add_point_light([1, -2, 2], [1, 1, 1], shadow=True)
     scene.add_point_light([-1, 0, 1], [1, 1, 1], shadow=True)
 
-    # ---------------------------------------------------------------------------- #
-    # Camera
-    # ---------------------------------------------------------------------------- #
     near, far = 0.1, 100
     width, height = 640, 480
     camera_mount_actor = scene.create_actor_builder().build_kinematic()
@@ -76,7 +73,6 @@ def box1(idx):
         near=near,
         far=far,
     )
-
 
     # Compute the camera pose by specifying forward(x), left(y) and up(z)
     cam_pos = np.array([-.2, -.2, .3])
@@ -93,9 +89,6 @@ def box1(idx):
     scene.update_render()
     camera.take_picture()
 
-    # ---------------------------------------------------------------------------- #
-    # Take picture from the viewer
-    # ---------------------------------------------------------------------------- #
     viewer = Viewer(renderer)
     viewer.set_scene(scene)
     # We show how to set the viewer according to the pose of a camera
@@ -108,11 +101,6 @@ def box1(idx):
     rpy = mat2euler(model_matrix[:3, :3]) * np.array([1, -1, -1])
     viewer.set_camera_xyz(*model_matrix[0:3, 3])
     viewer.set_camera_rpy(*rpy)
-    # viewer.window.set_camera_parameters(near=0.05, far=100, fovy=1)
-    # rgba = viewer.window.get_float_texture('Color')
-    # rgba_img = (rgba * 255).clip(0, 255).astype("uint8")
-    # rgba_pil = Image.fromarray(rgba_img)
-    # rgba_pil.save(f'./log/{idx}.png')
     while not viewer.closed:
         if viewer.window.key_down('p'):  # Press 'p' to take the screenshot
             rgba = viewer.window.get_float_texture('Color')
@@ -171,7 +159,7 @@ def box1(idx):
                     'root_q': asset.get_root_pose().q.tolist(),
                     'qpos': asset.get_qpos().tolist()
                 }
-                json.dump(pose_dict, f)
+                json.dump(pose_dict, f, indent=4)
             viewer.close()
         elif viewer.window.key_down('escape'):
             logging.error(f'box1 {idx} did not save the pose')
@@ -182,7 +170,6 @@ def box1(idx):
 
 
 if __name__ == '__main__':
-    # box1(0)
     for i in range(len(CAT['box'][1]['ids'])):
         logging.info(CAT['box'][1]['ids'][i])
         box1(CAT['box'][1]['ids'][i])
