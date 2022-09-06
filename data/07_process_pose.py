@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:40:19
-LastEditTime: 2022-09-05 20:16:29
+LastEditTime: 2022-09-06 22:40:30
 Description: 
 '''
 import logging
@@ -45,8 +45,10 @@ def box1(idx):
                 mesh.paint_uniform_color([0.8, 0.8, 0.8])
                 mesh.compute_vertex_normals()
                 bbox_lineset = o3d.geometry.LineSet.create_from_axis_aligned_bounding_box(bbox)
+                # add_line_set_to_renderer(scene=scene, renderer=renderer, position=bbox_points, connection=bbox_lines)
                 # display the mesh
-                o3d.visualization.draw_geometries([mesh, bbox, bbox2])
+                if False:
+                    o3d.visualization.draw_geometries([mesh, bbox, bbox2])
                 # return the bbox vertices and connections
                 return np.asarray(bbox_lineset.points), np.asarray(bbox_lineset.lines)
 
@@ -113,8 +115,7 @@ def box1(idx):
     scene.update_render()
     camera.take_picture()
 
-    bbox_points, bbox_lines = view_hinge_lid_bbox(asset)
-    add_line_set_to_renderer(scene=scene, renderer=renderer, position=bbox_points, connection=bbox_lines)
+    # add_line_set_to_renderer(scene=scene, renderer=renderer, position=bbox_points, connection=bbox_lines)
 
     viewer = Viewer(renderer)
     viewer.set_scene(scene)
@@ -128,6 +129,17 @@ def box1(idx):
     rpy = mat2euler(model_matrix[:3, :3]) * np.array([1, -1, -1])
     viewer.set_camera_xyz(*model_matrix[0:3, 3])
     viewer.set_camera_rpy(*rpy)
+    if os.path.isfile(f'processed/box/{idx}/init_pose.json'):
+        with open(f'processed/box/{idx}/init_pose.json', 'r') as f:
+            data = json.load(f)
+        asset.set_qpos(data['qpos'])
+        asset.set_root_pose(sapien.Pose(data['root_p'], data['root_q']))
+        bbox_points, bbox_lines = np.asarray(data['bbox_points']), np.asarray(data['bbox_lines'])
+        add_line_set_to_renderer(scene=scene, renderer=renderer, position=bbox_points, connection=bbox_lines)
+        print('reset pose from json file')
+    else:
+        bbox_points, bbox_lines = view_hinge_lid_bbox(asset)
+        add_line_set_to_renderer(scene=scene, renderer=renderer, position=bbox_points, connection=bbox_lines)
     while not viewer.closed:
         if viewer.window.key_down('p'):  # Press 'p' to take the screenshot
             rgba = viewer.window.get_float_texture('Color')
@@ -142,6 +154,8 @@ def box1(idx):
                 print('reset pose from json file')
                 asset.set_qpos(data['qpos'])
                 asset.set_root_pose(sapien.Pose(data['root_p'], data['root_q']))
+                bbox_points, bbox_lines = data['bbox_points'], data['bbox_lines']
+
         elif viewer.window.key_down('up'):
             asset.set_qpos([asset.get_qpos()[0] + 0.01])
         elif viewer.window.key_down('down'):
@@ -187,7 +201,9 @@ def box1(idx):
                 pose_dict = {
                     'root_p': asset.get_root_pose().p.tolist(),
                     'root_q': asset.get_root_pose().q.tolist(),
-                    'qpos': asset.get_qpos().tolist()
+                    'qpos': asset.get_qpos().tolist(),
+                    'bbox_points': bbox_points.tolist(),
+                    'bbox_lines': bbox_lines.tolist(),
                 }
                 json.dump(pose_dict, f, indent=4)
             viewer.close()
