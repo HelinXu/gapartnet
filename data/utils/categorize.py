@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:15:48
-LastEditTime: 2022-09-15 18:06:25
+LastEditTime: 2022-09-15 21:37:45
 Description: 
 '''
 
@@ -115,17 +115,48 @@ BUCKET_others = [
 DRAWER_1 = [
     282,
     283,
-    285,
     288,
     289,
-    294, #
-    300, #
+    294,
+    300,
     302,
     304,
-    308, #
+    308,
     309,
     313,
     314,
+]
+
+DRAWER_2 = [
+    274,
+    277,
+    281,
+    287,
+    291,
+    296,
+    307,
+]
+
+DRAWER_3 = [
+    275,
+]
+
+DRAWER_4 = [
+    276,
+    278,
+    290,
+    297,
+]
+
+DRAWER_5 = [
+    292,
+    298,
+    311,
+    312,
+]
+
+DRAWER_6 = [
+    301,
 ]
 
 CAT = {
@@ -150,6 +181,21 @@ CAT = {
     'drawer': {
         1: {
             'ids': DRAWER_1,
+        },
+        2: {
+            'ids': DRAWER_2,
+        },
+        3: {
+            'ids': DRAWER_3,
+        },
+        4: {
+            'ids': DRAWER_4,
+        },
+        5: {
+            'ids': DRAWER_5,
+        },
+        6: {
+            'ids': DRAWER_6,
         },
     },
     'trashcan': {
