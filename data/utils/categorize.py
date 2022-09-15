@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:15:48
-LastEditTime: 2022-09-15 21:37:45
+LastEditTime: 2022-09-15 22:16:37
 Description: 
 '''
 
@@ -112,7 +112,7 @@ BUCKET_others = [
     33,
 ]
 
-DRAWER_1 = [
+DRAWER_1 = [  # NOTE: 285 hasa big hole
     282,
     283,
     288,
@@ -163,15 +163,11 @@ CAT = {
     'box': {
         1: {
             'ids': BOX_1,
-            # 'root_p': [0, 0, 0],
-            # 'root_q': [0, 0, 0, 1],
         },
     },
     'bucket': {
         1: {
             'ids': BUCKET_1,
-            # 'root_p': [0, 0, 0],
-            # 'root_q': [0, 0, 0, ?],
         },
         2: {
             'ids': BUCKET_2,
