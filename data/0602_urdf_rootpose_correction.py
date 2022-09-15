@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-15 16:16:55
-LastEditTime: 2022-09-15 21:50:42
+LastEditTime: 2022-09-15 21:57:49
 Description: 
 '''
 from glob import glob
@@ -144,4 +144,23 @@ if __name__ == '__main__':
         with open(file.replace('sapien.urdf', 'sapien_v2.urdf'), 'wb') as f:
             f.write(ET.tostring(node, pretty_print=True))
 
+    # drawer4
+    for i in range(len(CAT['drawer'][4]['ids'])):
+        cat = 'drawer'
+        idx = CAT[cat][4]["ids"][i]
+        file = f'processed/{cat}/{idx}/motion_sapien.urdf'
+        node, path = load_urdf(file)
+        ic(file)
+        # add a new link
+        new_link = ET.Element('link', name='root')
+        node.append(new_link)
+        # add a new joint
+        new_joint = ET.Element('joint', name='root_joint', type='fixed')
+        new_joint.append(ET.Element('parent', link='root'))
+        new_joint.append(ET.Element('child', link='base_link'))
+        new_joint.append(ET.Element('origin', xyz='0 0 0', rpy='1.57079633 0 1.57079633'))
+        node.append(new_joint)
+        # save the etree
+        with open(file.replace('sapien.urdf', 'sapien_v2.urdf'), 'wb') as f:
+            f.write(ET.tostring(node, pretty_print=True))
 
