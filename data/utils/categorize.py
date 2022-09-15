@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:15:48
-LastEditTime: 2022-09-15 23:51:07
+LastEditTime: 2022-09-16 00:05:01
 Description: 
 '''
 
@@ -176,7 +176,7 @@ TRASHCAN_1 = [
     247,
     249,
     250,
-    254,
+    # 254,  # noisy mesh, bbox too big
     256,
     257,
     258,
