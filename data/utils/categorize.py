@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:15:48
-LastEditTime: 2022-09-15 17:54:13
+LastEditTime: 2022-09-15 18:06:25
 Description: 
 '''
 
@@ -112,6 +112,22 @@ BUCKET_others = [
     33,
 ]
 
+DRAWER_1 = [
+    282,
+    283,
+    285,
+    288,
+    289,
+    294, #
+    300, #
+    302,
+    304,
+    308, #
+    309,
+    313,
+    314,
+]
+
 CAT = {
     'box': {
         1: {
@@ -132,7 +148,9 @@ CAT = {
 
     },
     'drawer': {
-
+        1: {
+            'ids': DRAWER_1,
+        },
     },
     'trashcan': {
         
