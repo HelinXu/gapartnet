@@ -37,6 +37,8 @@ def render(data_root='../../', save_root='.',
     asset = loader.load_kinematic(urdf_path)
     assert asset, 'URDF not loaded.'
 
+    qpos_limit = asset.get_qlimits()
+    asset.set_qpos((qpos_limit[:,0] + qpos_limit[:,1]) / 2)  # Make them half open!
 
     scene.set_ambient_light([0.5, 0.5, 0.5])
     scene.add_directional_light([0, 1, -1], [0.5, 0.5, 0.5], shadow=True)
@@ -88,63 +90,57 @@ def render(data_root='../../', save_root='.',
     rgba_pil = Image.fromarray(rgba_img)
     rgba_pil.save(f'{save_root}/{category_name}/{object_id}_color.png')
 
-    # ---------------------------------------------------------------------------- #
-    # XYZ position in the camera space
-    # ---------------------------------------------------------------------------- #
-    # Each pixel is (x, y, z, is_valid) in camera space (OpenGL/Blender)
-    position = camera.get_float_texture('Position')  # [H, W, 4]
+    # # ---------------------------------------------------------------------------- #
+    # # XYZ position in the camera space
+    # # ---------------------------------------------------------------------------- #
+    # # Each pixel is (x, y, z, is_valid) in camera space (OpenGL/Blender)
+    # position = camera.get_float_texture('Position')  # [H, W, 4]
 
-    # OpenGL/Blender: y up and -z forward
-    points_opengl = position[..., :3][position[..., 3] > 0]
-    points_color = rgba[position[..., 3] > 0][..., :3]
-    # Model matrix is the transformation from OpenGL camera space to SAPIEN world space
-    # camera.get_model_matrix() must be called after scene.update_render()!
-    model_matrix = camera.get_model_matrix()
-    points_world = points_opengl @ model_matrix[:3, :3].T + model_matrix[:3, 3]
+    # # OpenGL/Blender: y up and -z forward
+    # points_opengl = position[..., :3][position[..., 3] > 0]
+    # points_color = rgba[position[..., 3] > 0][..., :3]
+    # # Model matrix is the transformation from OpenGL camera space to SAPIEN world space
+    # # camera.get_model_matrix() must be called after scene.update_render()!
+    # model_matrix = camera.get_model_matrix()
+    # points_world = points_opengl @ model_matrix[:3, :3].T + model_matrix[:3, 3]
 
-    # SAPIEN CAMERA: z up and x forward
-    # points_camera = points_opengl[..., [2, 0, 1]] * [-1, -1, 1]
+    # # SAPIEN CAMERA: z up and x forward
+    # # points_camera = points_opengl[..., [2, 0, 1]] * [-1, -1, 1]
 
-    # Depth
-    depth = -position[..., 2]
-    depth_image = (depth * 1000.0).astype(np.uint16)
-    depth_pil = Image.fromarray(depth_image)
-    depth_pil.save(f'{save_root}/{category_name}/{object_id}_depth.png')
+    # # Depth
+    # depth = -position[..., 2]
+    # depth_image = (depth * 1000.0).astype(np.uint16)
+    # depth_pil = Image.fromarray(depth_image)
+    # depth_pil.save(f'{save_root}/{category_name}/{object_id}_depth.png')
 
-    # ---------------------------------------------------------------------------- #
-    # Segmentation labels
-    # ---------------------------------------------------------------------------- #
-    # Each pixel is (visual_id, actor_id/link_id, 0, 0)
-    # visual_id is the unique id of each visual shape
-    seg_labels = camera.get_uint32_texture('Segmentation')  # [H, W, 4]
-    colormap = sorted(set(ImageColor.colormap.values()))
-    color_palette = np.array([ImageColor.getrgb(color) for color in colormap],
-                             dtype=np.uint8)
-    label0_image = seg_labels[..., 0].astype(np.uint8)  # mesh-level
-    label1_image = seg_labels[..., 1].astype(np.uint8)  # actor-level
-    # Or you can use aliases below
-    # label0_image = camera.get_visual_segmentation()
-    # label1_image = camera.get_actor_segmentation()
-    label0_pil = Image.fromarray(color_palette[label0_image])
-    label0_pil.save(f'{save_root}/{category_name}/{object_id}_seg0.png')
-    label1_pil = Image.fromarray(color_palette[label1_image])
-    label1_pil.save(f'{save_root}/{category_name}/{object_id}_seg1.png')
+    # # ---------------------------------------------------------------------------- #
+    # # Segmentation labels
+    # # ---------------------------------------------------------------------------- #
+    # # Each pixel is (visual_id, actor_id/link_id, 0, 0)
+    # # visual_id is the unique id of each visual shape
+    # seg_labels = camera.get_uint32_texture('Segmentation')  # [H, W, 4]
+    # colormap = sorted(set(ImageColor.colormap.values()))
+    # color_palette = np.array([ImageColor.getrgb(color) for color in colormap],
+    #                          dtype=np.uint8)
+    # label0_image = seg_labels[..., 0].astype(np.uint8)  # mesh-level
+    # label1_image = seg_labels[..., 1].astype(np.uint8)  # actor-level
+    # # Or you can use aliases below
+    # # label0_image = camera.get_visual_segmentation()
+    # # label1_image = camera.get_actor_segmentation()
+    # label0_pil = Image.fromarray(color_palette[label0_image])
+    # label0_pil.save(f'{save_root}/{category_name}/{object_id}_seg0.png')
+    # label1_pil = Image.fromarray(color_palette[label1_image])
+    # label1_pil.save(f'{save_root}/{category_name}/{object_id}_seg1.png')
 
 
 if __name__ == '__main__':
     data_root = 'processed'
     save_root = 'v2'
-    for f in glob(f'{data_root}/*/*/motion_sapien_v2.urdf'):
+    for f in glob(f'{data_root}/drawer/*/motion_sapien_v2.urdf'):
         print(f)
         _f = f.split('/')
         category_name = _f[-3]
         object_id = _f[-2]
         render(data_root=data_root, save_root=save_root, category_name=category_name, object_id=object_id)
         logging.info(f'success {object_id}')
-
-
-
-        
-
-
 
