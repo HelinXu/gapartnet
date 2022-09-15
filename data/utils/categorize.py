@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:15:48
-LastEditTime: 2022-09-16 00:38:16
+LastEditTime: 2022-09-16 01:17:12
 Description: 
 '''
 
@@ -30,7 +30,7 @@ BOX_1 = [
     # 101,
     102,
     117,
-    122,
+        # 122,
     124,
     128,
     # 130,
