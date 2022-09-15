@@ -16,6 +16,80 @@ from transforms3d.euler import mat2euler
 from glob import glob
 import os
 
+bucket_id = [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    15,
+    16,
+    20,
+    22,
+    23,
+    26,
+    27,
+    30,
+    32,
+    35,
+    36,
+    38,
+    39,
+    7,
+    14,
+    17,
+    18,
+    19,
+    21,
+    24,
+    # 25,  # has 5 links
+    29,
+    31,
+    34,
+    37,
+    # 28,
+    # 33,
+]
+
+drawer_id = [
+    282,
+    283,
+    288,
+    289,
+    294,
+    300,
+    302,
+    304,
+    308,
+    309,
+    313,
+    314,
+    274,
+    277,
+    281,
+    287,
+    291,
+    296,
+    307,
+    275,
+    276,
+    278,
+    290,
+    297,
+    292,
+    298,
+    311,
+    312,
+    301,
+]
 
 def render(data_root='../../', save_root='.',
         category_name='box', object_id='3f8719c9-0e3e-11ed-ac75-ec2e98c7e246'
@@ -37,8 +111,8 @@ def render(data_root='../../', save_root='.',
     asset = loader.load_kinematic(urdf_path)
     assert asset, 'URDF not loaded.'
 
-    qpos_limit = asset.get_qlimits()
-    asset.set_qpos((qpos_limit[:,0] + qpos_limit[:,1]) / 2)  # Make them half open!
+    # qpos_limit = asset.get_qlimits()
+    # asset.set_qpos((qpos_limit[:,0] + qpos_limit[:,1]) / 2)  # Make them half open!
 
     scene.set_ambient_light([0.5, 0.5, 0.5])
     scene.add_directional_light([0, 1, -1], [0.5, 0.5, 0.5], shadow=True)
@@ -88,7 +162,7 @@ def render(data_root='../../', save_root='.',
     # rgba = camera.get_color_rgba()  # [H, W, 4]
     rgba_img = (rgba * 255).clip(0, 255).astype("uint8")
     rgba_pil = Image.fromarray(rgba_img)
-    rgba_pil.save(f'{save_root}/{category_name}/{object_id}_color.png')
+    rgba_pil.save(f'{save_root}/{category_name}_{object_id}.png')
 
     # # ---------------------------------------------------------------------------- #
     # # XYZ position in the camera space
@@ -135,12 +209,9 @@ def render(data_root='../../', save_root='.',
 
 if __name__ == '__main__':
     data_root = 'processed'
-    save_root = 'v2'
-    for f in glob(f'{data_root}/*/*/motion_sapien_v2.urdf'):
-        print(f)
-        _f = f.split('/')
-        category_name = _f[-3]
-        object_id = _f[-2]
-        render(data_root=data_root, save_root=save_root, category_name=category_name, object_id=object_id)
-        logging.info(f'success {object_id}')
+    save_root = 'img'
+    for id in bucket_id:
+        print(id)
+        render(data_root=data_root, save_root=save_root, category_name='bucket', object_id=str(id))
+        # logging.info(f'success {object_id}')
 
