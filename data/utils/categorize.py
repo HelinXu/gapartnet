@@ -1,7 +1,7 @@
 '''
 Author: HelinXu xuhelin1911@gmail.com
 Date: 2022-09-05 15:15:48
-LastEditTime: 2022-09-15 22:22:52
+LastEditTime: 2022-09-15 22:59:03
 Description: 
 '''
 
@@ -100,7 +100,7 @@ BUCKET_2 = [
     19,
     21,
     24,
-    25,
+    # 25,  # has 5 links
     29,
     31,
     34,
